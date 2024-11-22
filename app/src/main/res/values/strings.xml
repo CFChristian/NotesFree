@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">NotesFree</string>
+    <string name="title">Please login, to continue using this app</string>
+    <string name="hint_email">Please enter your email</string>
+    <string name="hint_password">Please enter your password</string>
+    <string name="Already_have_an_account">Already have an account?</string>
+    <string name="Dont_have_an_account">Dont have an account?</string>
+</resources>
