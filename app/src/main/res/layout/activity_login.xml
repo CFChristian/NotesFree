@@ -40,7 +40,7 @@
         app:layout_constraintTop_toBottomOf="@+id/Icon_logo" />
 
     <EditText
-        android:id="@+id/username"
+        android:id="@+id/edt_email_login"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -59,7 +59,7 @@
         app:layout_constraintTop_toBottomOf="@+id/title" />
 
     <EditText
-        android:id="@+id/password"
+        android:id="@+id/edt_password_login"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
@@ -71,12 +71,12 @@
         android:inputType="textPassword"
         android:textSize="16sp"
         android:padding="12dp"
-        app:layout_constraintEnd_toEndOf="@+id/username"
-        app:layout_constraintStart_toStartOf="@+id/username"
-        app:layout_constraintTop_toBottomOf="@+id/username" />
+        app:layout_constraintEnd_toEndOf="@+id/edt_email_login"
+        app:layout_constraintStart_toStartOf="@+id/edt_email_login"
+        app:layout_constraintTop_toBottomOf="@+id/edt_email_login" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/login"
+        android:id="@+id/login_btn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -89,40 +89,58 @@
         app:backgroundTint="@color/light_blue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password" />
+        app:layout_constraintTop_toBottomOf="@+id/edt_password_login" />
 
     <ProgressBar
-        android:id="@+id/progress_bar"
+        android:id="@+id/progress_bar_login"
         android:layout_width="24dp"
         android:layout_marginTop="24dp"
         android:layout_height="24dp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/login"
-        app:layout_constraintStart_toStartOf="@+id/login"
-        app:layout_constraintTop_toBottomOf="@+id/login" />
+        app:layout_constraintEnd_toEndOf="@+id/login_btn"
+        app:layout_constraintStart_toStartOf="@+id/login_btn"
+        app:layout_constraintTop_toBottomOf="@+id/login_btn" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/txt_error_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="32dp"
+        android:fontFamily="@font/poppinsregular"
+        android:gravity="center"
+        android:textColor="@color/red"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:visibility="gone"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="@+id/login_btn"
+        app:layout_constraintStart_toStartOf="@+id/login_btn"
+        app:layout_constraintTop_toBottomOf="@+id/login_btn" />
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:gravity="center"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/progress_bar">
+        app:layout_constraintTop_toBottomOf="@+id/txt_error_login"
+        tools:layout_editor_absoluteX="32dp">
 
         <TextView
             android:id="@+id/dont_have_an_account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/poppinsbold"
             android:text="@string/Dont_have_an_account"
-            android:textSize="16sp"
-            android:fontFamily="@font/poppinsbold" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/register"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=" Register here"
             android:fontFamily="@font/poppinsregular"
+            android:text=" Register here"
             android:textColor="@color/light_blue"
             android:textSize="16sp"
             android:textStyle="bold" />

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "462627738076",
+    "project_id": "notesfree-f2694",
+    "storage_bucket": "notesfree-f2694.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:462627738076:android:881182f0a6851ad06cbf19",
+        "android_client_info": {
+          "package_name": "com.project.notesfree"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6gZBAe-_P7C4n9ksTiiD7z1sRuiVFIuE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
