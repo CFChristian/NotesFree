@@ -28,4 +28,9 @@ class MainActivity : AppCompatActivity() {
         txtGreetings.text = "Welcome, ${user?.displayName}"
 
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finishAffinity() // Close the app
+    }
 }

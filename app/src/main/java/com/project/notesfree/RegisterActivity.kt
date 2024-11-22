@@ -115,16 +115,30 @@ class RegisterActivity : AppCompatActivity() {
                     }
                     user?.updateProfile(profileUpdates)?.addOnCompleteListener { updateTask ->
                         if (updateTask.isSuccessful) {
-                            txtSuccess.text = "Register Success, Please check your email to verify your account"
-                            txtSuccess.visibility = TextView.VISIBLE
-                            txtError.visibility = TextView.GONE
-                            user.sendEmailVerification()
+                            user.sendEmailVerification().addOnCompleteListener { emailTask ->
+                                if (emailTask.isSuccessful) {
+                                    txtSuccess.text =
+                                        "Register Success, Please check your email to verify your account"
+                                    txtSuccess.visibility = TextView.VISIBLE
+                                    txtError.visibility = TextView.GONE
+                                } else {
+                                    user.delete()
+                                    txtError.text = "Failed to send verification email. Please try again."
+                                    txtError.visibility = TextView.VISIBLE
+                                    txtSuccess.visibility = TextView.GONE
+                                }
+                            }
                         } else {
-                            txtError.text = "Register Failed, Please try again"
+                            txtError.text = "Failed to send verification email, Please try again later"
                             txtError.visibility = TextView.VISIBLE
                             txtSuccess.visibility = TextView.GONE
+                            user.delete()
                         }
                     }
+                } else {
+                    txtError.text = "Failed to register, Please try again later"
+                    txtError.visibility = TextView.VISIBLE
+                    txtSuccess.visibility = TextView.GONE
                 }
             }
     }

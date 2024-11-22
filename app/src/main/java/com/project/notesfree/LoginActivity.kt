@@ -69,12 +69,17 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    val userId = auth.currentUser?.uid
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.putExtra("User_ID", userId)
-                    startActivity(intent)
-                    finish()
+                    val user = auth.currentUser
+                    if (user != null && user.isEmailVerified) {
+                        val intent = Intent(this, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        txtErrorLogin.visibility = TextView.VISIBLE
+                        binding.txtErrorLogin.text = "Please verify your email address"
+                    }
                 } else {
+                    txtErrorLogin.visibility = TextView.VISIBLE
                     binding.txtErrorLogin.text = "Email or password is incorrect"
                 }
             }

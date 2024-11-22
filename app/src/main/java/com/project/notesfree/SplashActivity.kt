@@ -15,23 +15,36 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
 
         auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
 
         // Cek apakah user sudah login atau belum
-        if (auth.currentUser != null) {
-            // Jika sudah login, langsung arahkan ke MainActivity
-            Handler(Looper.getMainLooper()).postDelayed({
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish() // Tutup SplashActivity agar tidak kembali ke sini
-            }, 2000) // 2000 ms = 2 detik
-            return
+        if (currentUser != null) {
+            // Check if the user account still exists
+            currentUser.reload().addOnCompleteListener { task ->
+                if (task.isSuccessful && auth.currentUser != null) {
+                    // If the user is still logged in, navigate to MainActivity
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        val intent = Intent(this, MainActivity::class.java)
+                        startActivity(intent)
+                        finish() // Close SplashActivity to prevent returning to it
+                    }, 2000) // 2000 ms = 2 seconds
+                } else {
+                    // If the user account no longer exists, sign out and navigate to LoginActivity
+                    auth.signOut()
+                    navigateToLogin()
+                }
+            }
+        } else {
+            // If no user is logged in, navigate to LoginActivity
+            navigateToLogin()
         }
+    }
 
+    private fun navigateToLogin() {
         Handler(Looper.getMainLooper()).postDelayed({
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish() // Tutup SplashActivity agar tidak kembali ke sini
         }, 2000) // 2000 ms = 2 detik
-
     }
 }
