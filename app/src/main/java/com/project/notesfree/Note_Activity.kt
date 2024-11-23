@@ -43,7 +43,13 @@ class Note_Activity : AppCompatActivity() {
         val description = binding.edtDescriptionCreateNote.text.toString()
 
         if (title.isEmpty() && description.isEmpty()) {
-            binding.edtTitleCreateNote.error = "Title is required"
+            binding.edtTitleCreateNote.error = "Title and desciption is required"
+            binding.edtTitleCreateNote.requestFocus()
+            return
+        }
+
+        if (title.length > 20) {
+            binding.edtTitleCreateNote.error = "Title is too long"
             binding.edtTitleCreateNote.requestFocus()
             return
         }
@@ -52,6 +58,8 @@ class Note_Activity : AppCompatActivity() {
             this.title = title
             this.content = description
             val dateFormat = java.text.SimpleDateFormat("dd/MM/yyyy")
+            val timeFormat = java.text.SimpleDateFormat("HH:mm")
+            this.time = timeFormat.format(Date())
             this.date = dateFormat.format(Date())
         }
 
