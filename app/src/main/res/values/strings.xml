@@ -3,6 +3,8 @@
     <string name="title">Please login, to continue using this app</string>
     <string name="hint_email">Please enter your email</string>
     <string name="hint_password">Please enter your password</string>
+    <string name="note_title">Title</string>
+    <string name="note_description">Note Description</string>
     <string name="Already_have_an_account">Already have an account?</string>
     <string name="Dont_have_an_account">Dont have an account?</string>
 </resources>
