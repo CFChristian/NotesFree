@@ -9,39 +9,26 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.userProfileChangeRequest
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import com.project.notesfree.databinding.ActivityRegisterBinding
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityRegisterBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var btnRegister: Button
-    private lateinit var progressBar: ProgressBar
-    private lateinit var txtError: TextView
-    private lateinit var txtSuccess: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val txtLogin: TextView = findViewById(R.id.txt_login)
-        btnRegister = findViewById(R.id.btn_register)
-        progressBar = findViewById(R.id.progressBar)
-        txtError = findViewById(R.id.txt_error)
-        txtSuccess = findViewById(R.id.txt_success)
-
-
-        txtLogin.setOnClickListener {
+        binding.txtLogin.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
 
         auth = FirebaseAuth.getInstance()
 
-        btnRegister.setOnClickListener{
+        binding.btnRegister.setOnClickListener{
             val username = binding.edtUsernameRegister.text.toString()
             val email = binding.edtEmailRegister.text.toString()
             val password = binding.edtPasswordRegister.text.toString()
@@ -96,8 +83,8 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            progressBar.visibility = ProgressBar.VISIBLE
-            btnRegister.visibility = TextView.GONE
+            binding.progressBar.visibility = ProgressBar.VISIBLE
+            binding.btnRegister.visibility = TextView.GONE
             registerUser(username, email, password)
         }
     }
@@ -106,8 +93,8 @@ class RegisterActivity : AppCompatActivity() {
     private fun registerUser(username: String, email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
-                progressBar.visibility = ProgressBar.GONE
-                btnRegister.visibility = TextView.VISIBLE
+                binding.progressBar.visibility = ProgressBar.GONE
+                binding.btnRegister.visibility = TextView.VISIBLE
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     val profileUpdates = userProfileChangeRequest {
@@ -117,28 +104,27 @@ class RegisterActivity : AppCompatActivity() {
                         if (updateTask.isSuccessful) {
                             user.sendEmailVerification().addOnCompleteListener { emailTask ->
                                 if (emailTask.isSuccessful) {
-                                    txtSuccess.text =
-                                        "Register Success, Please check your email to verify your account"
-                                    txtSuccess.visibility = TextView.VISIBLE
-                                    txtError.visibility = TextView.GONE
+                                    binding.txtSuccess.text = "Register Success, Please check your email to verify your account"
+                                    binding.txtSuccess.visibility = TextView.VISIBLE
+                                    binding.txtError.visibility = TextView.GONE
                                 } else {
                                     user.delete()
-                                    txtError.text = "Failed to send verification email. Please try again."
-                                    txtError.visibility = TextView.VISIBLE
-                                    txtSuccess.visibility = TextView.GONE
+                                    binding.txtError.text = "Failed to send verification email. Please try again."
+                                    binding.txtError.visibility = TextView.VISIBLE
+                                    binding.txtSuccess.visibility = TextView.GONE
                                 }
                             }
                         } else {
-                            txtError.text = "Failed to send verification email, Please try again later"
-                            txtError.visibility = TextView.VISIBLE
-                            txtSuccess.visibility = TextView.GONE
+                            binding.txtError.text = "Failed to send verification email, Please try again later"
+                            binding.txtError.visibility = TextView.VISIBLE
+                            binding.txtSuccess.visibility = TextView.GONE
                             user.delete()
                         }
                     }
                 } else {
-                    txtError.text = "Failed to register, Please try again later"
-                    txtError.visibility = TextView.VISIBLE
-                    txtSuccess.visibility = TextView.GONE
+                    binding.txtError.text = "Failed to register, Please try again later"
+                    binding.txtError.visibility = TextView.VISIBLE
+                    binding.txtSuccess.visibility = TextView.GONE
                 }
             }
     }

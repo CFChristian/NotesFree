@@ -16,11 +16,7 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var txt_register: TextView
-    private lateinit var loginBtn: Button
-    private lateinit var edtEmailLogin: EditText
-    private lateinit var edtPasswordLogin: EditText
-    private lateinit var txtErrorLogin: TextView
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,14 +24,9 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        txt_register = findViewById(R.id.register)
-        loginBtn = findViewById(R.id.login_btn)
-        edtEmailLogin = findViewById(R.id.edt_email_login)
-        edtPasswordLogin = findViewById(R.id.edt_password_login)
-        txtErrorLogin = findViewById(R.id.txt_error_login)
         auth = FirebaseAuth.getInstance()
 
-        txt_register.setOnClickListener {
+        binding.register.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
@@ -75,11 +66,11 @@ class LoginActivity : AppCompatActivity() {
                         startActivity(intent)
                         finish()
                     } else {
-                        txtErrorLogin.visibility = TextView.VISIBLE
+                        binding.txtErrorLogin.visibility = TextView.VISIBLE
                         binding.txtErrorLogin.text = "Please verify your email address"
                     }
                 } else {
-                    txtErrorLogin.visibility = TextView.VISIBLE
+                    binding.txtErrorLogin.visibility = TextView.VISIBLE
                     binding.txtErrorLogin.text = "Email or password is incorrect"
                 }
             }
