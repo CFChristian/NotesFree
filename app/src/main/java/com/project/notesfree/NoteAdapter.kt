@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class NoteAdapter(private val noteList: List<Note>) : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
+class NoteAdapter(private val noteList: List<NoteData>) : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
     class NoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title : TextView = itemView.findViewById(R.id.tv_title)
         val content : TextView = itemView.findViewById(R.id.tv_description)

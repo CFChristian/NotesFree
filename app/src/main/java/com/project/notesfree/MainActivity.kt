@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var noteAdapter: NoteAdapter
     private lateinit var firestore: FirebaseFirestore
-    private val noteList = mutableListOf<Note>()
+    private val noteList = mutableListOf<NoteData>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
             .addOnSuccessListener { documents ->
                 noteList.clear()
                 for (document in documents) {
-                    val note = document.toObject(Note::class.java)
+                    val note = document.toObject(NoteData::class.java)
                     noteList.add(note)
                 }
                 noteAdapter.notifyDataSetChanged()

@@ -54,7 +54,7 @@ class Note_Activity : AppCompatActivity() {
             return
         }
 
-        val note = Note().apply {
+        val note = NoteData().apply {
             this.title = title
             this.content = description
             val dateFormat = java.text.SimpleDateFormat("dd/MM/yyyy")
