@@ -69,6 +69,7 @@ class Note_Activity : AppCompatActivity() {
 
         val note = mapOf(
             "title" to title,
+            "title_lowercase" to title.toLowerCase(),
             "content" to description,
             "date" to java.text.SimpleDateFormat("dd/MM/yyyy").format(Date()),
             "time" to java.text.SimpleDateFormat("HH:mm").format(Date()),

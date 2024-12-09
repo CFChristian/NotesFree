@@ -1,11 +1,13 @@
 package com.project.notesfree
 
 import android.content.Intent
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
+import android.view.MenuItem
+import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,17 +24,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var noteAdapter: NoteAdapter
     private lateinit var firestore: FirebaseFirestore
-    private lateinit var deleteIcon: Drawable
-    private lateinit var background: ColorDrawable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("MainActivity", "onCreate called")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
+        binding.searchView.clearFocus()
 
         val currentUser = auth.currentUser
         binding.txtGreet.text = "Welcome, ${currentUser?.displayName}"
@@ -50,6 +50,63 @@ class MainActivity : AppCompatActivity() {
 
         val itemTouchHelper = ItemTouchHelper(simpleCallback)
         itemTouchHelper.attachToRecyclerView(binding.notesRecyclerView)
+
+        setupSearchView()
+        setupPopupMenu()
+    }
+
+    private fun setupSearchView() {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (!TextUtils.isEmpty(newText)) {
+                    searchNotes(newText!!)
+                } else {
+                    resetRecyclerView()
+                }
+                return true
+            }
+        })
+    }
+
+    private fun setupPopupMenu() {
+        binding.dropdownMenu.setOnClickListener {
+            val popupMenu = PopupMenu(this, it)
+            popupMenu.menuInflater.inflate(R.menu.menu_main, popupMenu.menu)
+            popupMenu.setOnMenuItemClickListener { item: MenuItem? ->
+                when (item!!.itemId) {
+                    R.id.action_logout -> {
+                        auth.signOut()
+                        val intent = Intent(this, LoginActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                        true
+                    }
+                    else -> false
+                }
+            }
+            popupMenu.show()
+        }
+    }
+
+    private fun searchNotes(query: String) {
+        val searchQuery = query.toLowerCase()
+        Log.d("MainActivity", "Search query: $searchQuery")
+        val firestoreQuery = firestore.collection("users")
+            .document(auth.currentUser!!.uid)
+            .collection("notes")
+            .orderBy("title_lowercase")
+            .startAt(searchQuery)
+            .endAt(searchQuery + "\uf8ff")
+
+        val options = FirestoreRecyclerOptions.Builder<NoteData>()
+            .setQuery(firestoreQuery, NoteData::class.java)
+            .build()
+
+        noteAdapter.updateOptions(options)
     }
 
 
@@ -82,6 +139,20 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         noteAdapter.stopListening()
+    }
+
+    private fun resetRecyclerView() {
+        val userId = auth.currentUser?.uid ?: return
+        val query = firestore.collection("users")
+            .document(userId)
+            .collection("notes")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+
+        val options = FirestoreRecyclerOptions.Builder<NoteData>()
+            .setQuery(query, NoteData::class.java)
+            .build()
+
+        noteAdapter.updateOptions(options)
     }
 
     private val simpleCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
