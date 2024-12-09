@@ -1,11 +1,15 @@
 package com.project.notesfree
 
 import android.content.Intent
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -18,7 +22,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var noteAdapter: NoteAdapter
     private lateinit var firestore: FirebaseFirestore
-    private val noteList = mutableListOf<NoteData>()
+    private lateinit var deleteIcon: Drawable
+    private lateinit var background: ColorDrawable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,8 +36,7 @@ class MainActivity : AppCompatActivity() {
 
         val currentUser = auth.currentUser
         binding.txtGreet.text = "Welcome, ${currentUser?.displayName}"
-        setupRecyclerView()
-        fetchNotes(currentUser?.uid ?: "")
+        setupRecyclerView(currentUser?.uid ?: "")
 
         binding.addNoteBtn.setOnClickListener {
             val intent = Intent(this, Note_Activity::class.java)
@@ -40,8 +44,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.swipeRefreshLayout.setOnRefreshListener {
-            fetchNotes(currentUser?.uid ?: "")
+            noteAdapter.notifyDataSetChanged()
+            binding.swipeRefreshLayout.isRefreshing = false
         }
+
+        val itemTouchHelper = ItemTouchHelper(simpleCallback)
+        itemTouchHelper.attachToRecyclerView(binding.notesRecyclerView)
     }
 
 
@@ -50,32 +58,55 @@ class MainActivity : AppCompatActivity() {
         finishAffinity() // Close the app
     }
 
-    private fun setupRecyclerView() {
-        noteAdapter = NoteAdapter(noteList)
-        binding.notesRecyclerView.apply{
+    private fun setupRecyclerView(userId: String) {
+        val query = firestore.collection("users")
+            .document(userId)
+            .collection("notes")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+
+        val options = FirestoreRecyclerOptions.Builder<NoteData>()
+            .setQuery(query, NoteData::class.java)
+            .build()
+
+        noteAdapter = NoteAdapter(options)
+        binding.notesRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = noteAdapter
         }
     }
+    override fun onStart() {
+        super.onStart()
+        noteAdapter.startListening()
+    }
 
-    private fun fetchNotes(userId: String) {
-        firestore.collection("users")
-            .document(userId)
-            .collection("notes")
-            .orderBy("date", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { documents ->
-                noteList.clear()
-                for (document in documents) {
-                    val note = document.toObject(NoteData::class.java)
-                    noteList.add(note)
+    override fun onStop() {
+        super.onStop()
+        noteAdapter.stopListening()
+    }
+
+    private val simpleCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            return false
+        }
+
+        override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, direction: Int) {
+            val position = viewHolder.adapterPosition
+            val docId = noteAdapter.snapshots.getSnapshot(position).id
+            firestore.collection("users")
+                .document(auth.currentUser!!.uid)
+                .collection("notes")
+                .document(docId)
+                .delete()
+                .addOnCompleteListener{
+                    Log.d("MainActivity", "DocumentSnapshot successfully deleted!")
                 }
-                noteAdapter.notifyDataSetChanged()
-                binding.swipeRefreshLayout.isRefreshing = false
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Failed to fetch notes: ${e.message}", Toast.LENGTH_SHORT).show()
-                binding.swipeRefreshLayout.isRefreshing = false
-            }
+                .addOnFailureListener { e ->
+                    Log.w("MainActivity", "Error deleting document", e)
+                }
+        }
     }
 }

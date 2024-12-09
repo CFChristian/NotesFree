@@ -1,6 +1,5 @@
 package com.project.notesfree
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +14,7 @@ class Note_Activity : AppCompatActivity() {
     private lateinit var binding: ActivityNoteBinding
     private lateinit var firestore: FirebaseFirestore
     private lateinit var auth : FirebaseAuth
+    private var docId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,25 +26,38 @@ class Note_Activity : AppCompatActivity() {
 
 
         //Autentikasi user
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            binding.createSaveNote.setOnClickListener {
-                saveNote()
-            }
-        } else {
-            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
-            finish()
-            startActivity(Intent(this, LoginActivity::class.java))
+        docId = intent.getStringExtra("docId")
+        if (docId != null) {
+            binding.edtTitleCreateNote.setText(intent.getStringExtra("title"))
+            binding.edtDescriptionCreateNote.setText(intent.getStringExtra("description"))
+            binding.noteTitle.text = "Edit Your Note"
+        }
+
+        //Menyimpan data note
+        binding.createSaveNote.setOnClickListener {
+            saveNote()
         }
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
+    }
+
+    //Fungsi untuk menyimpan data note
     private fun saveNote() {
         val title = binding.edtTitleCreateNote.text.toString()
         val description = binding.edtDescriptionCreateNote.text.toString()
 
-        if (title.isEmpty() && description.isEmpty()) {
-            binding.edtTitleCreateNote.error = "Title and desciption is required"
+        if (title.isEmpty()) {
+            binding.edtTitleCreateNote.error = "Title is required"
             binding.edtTitleCreateNote.requestFocus()
+            return
+        }
+
+        if (description.isEmpty()) {
+            binding.edtDescriptionCreateNote.error = "Description is required"
+            binding.edtDescriptionCreateNote.requestFocus()
             return
         }
 
@@ -54,27 +67,41 @@ class Note_Activity : AppCompatActivity() {
             return
         }
 
-        val note = NoteData().apply {
-            this.title = title
-            this.content = description
-            val dateFormat = java.text.SimpleDateFormat("dd/MM/yyyy")
-            val timeFormat = java.text.SimpleDateFormat("HH:mm")
-            this.time = timeFormat.format(Date())
-            this.date = dateFormat.format(Date())
-        }
+        val note = mapOf(
+            "title" to title,
+            "content" to description,
+            "date" to java.text.SimpleDateFormat("dd/MM/yyyy").format(Date()),
+            "time" to java.text.SimpleDateFormat("HH:mm").format(Date()),
+            "timestamp" to System.currentTimeMillis()
+        )
 
         val currentUser = auth.currentUser!!
 
-        firestore.collection("users")
-            .document(currentUser.uid)
-            .collection("notes")
-            .add(note)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Failed to save note: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        if(docId == null) {
+            firestore.collection("users")
+                .document(currentUser.uid)
+                .collection("notes")
+                .add(note)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Note added", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Failed to add note: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            firestore.collection("users")
+                .document(currentUser.uid)
+                .collection("notes")
+                .document(docId!!)
+                .update(note)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Note updated", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Failed to save note: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
     }
 }
