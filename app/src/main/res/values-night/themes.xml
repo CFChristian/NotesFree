@@ -2,6 +2,35 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.NotesFree" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
+        <item name="iconTint">@color/white</item>
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="android:statusBarColor">@color/dark_status_bar_color</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="textViewStyle">
+        <item name="android:fontFamily">@font/poppinsregular</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="textViewTimestamp">
+        <item name="android:fontFamily">@font/poppinsregular</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/white_50</item>
+    </style>
+
+    <style name="textViewStyleTitle">
+        <item name="android:fontFamily">@font/poppinsbold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="background">
+        <item name="android:background">@color/black</item>
+    </style>
+
+    <style name="cardColor">
+        <item name="android:background">@color/white_50</item>
     </style>
 </resources>

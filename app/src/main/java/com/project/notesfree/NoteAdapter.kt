@@ -1,5 +1,4 @@
 package com.project.notesfree
-
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +9,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.firestore.FirebaseFirestoreException
 
-class NoteAdapter(options: FirestoreRecyclerOptions<NoteData>) : FirestoreRecyclerAdapter<NoteData, NoteAdapter.NoteViewHolder>(options) {
+open class NoteAdapter(options: FirestoreRecyclerOptions<NoteData>) : FirestoreRecyclerAdapter<NoteData, NoteAdapter.NoteViewHolder>(options) {
     class NoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.tv_title)
         val content: TextView = itemView.findViewById(R.id.tv_description)
@@ -40,6 +39,7 @@ class NoteAdapter(options: FirestoreRecyclerOptions<NoteData>) : FirestoreRecycl
         }
     }
 
+    // Function to synchronize data changes in the recylcer view
     override fun onDataChanged() {
         super.onDataChanged()
         notifyDataSetChanged()

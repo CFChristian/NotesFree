@@ -1,14 +1,8 @@
 package com.project.notesfree
-
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.project.notesfree.databinding.ActivityLoginBinding
 
@@ -16,8 +10,6 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityLoginBinding.inflate(layoutInflater)
@@ -56,6 +48,8 @@ class LoginActivity : AppCompatActivity() {
         finishAffinity() // Close the app
     }
 
+
+    // Login to Firebase
     private fun loginFirebase(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->

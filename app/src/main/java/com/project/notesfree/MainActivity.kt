@@ -1,12 +1,13 @@
 package com.project.notesfree
-
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.view.MenuItem
 import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,16 +18,23 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.project.notesfree.databinding.ActivityMainBinding
 
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var noteAdapter: NoteAdapter
     private lateinit var firestore: FirebaseFirestore
+    private lateinit var sharedPreferences: SharedPreferences
+    private var isDarkMode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sharedPreferences = getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+        isDarkMode = sharedPreferences.getBoolean("isDarkMode", false)
+        setAppTheme(isDarkMode)
+
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -55,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         setupPopupMenu()
     }
 
+    // Function to setup the search view
     private fun setupSearchView() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -72,10 +81,15 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    // Function to setup the popup menu
     private fun setupPopupMenu() {
         binding.dropdownMenu.setOnClickListener {
             val popupMenu = PopupMenu(this, it)
             popupMenu.menuInflater.inflate(R.menu.menu_main, popupMenu.menu)
+
+            val darkModeMenuItem = popupMenu.menu.findItem(R.id.dark_mode)
+            darkModeMenuItem.title = if (isDarkMode) "Light Mode" else "Dark Mode"
+
             popupMenu.setOnMenuItemClickListener { item: MenuItem? ->
                 when (item!!.itemId) {
                     R.id.action_logout -> {
@@ -85,6 +99,11 @@ class MainActivity : AppCompatActivity() {
                         finish()
                         true
                     }
+                    R.id.dark_mode -> {
+                        isDarkMode = !isDarkMode
+                        setAppTheme(isDarkMode)
+                        true
+                    }
                     else -> false
                 }
             }
@@ -92,6 +111,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Function to set the app theme
+    private fun setAppTheme(isDarkMode: Boolean) {
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+        with(sharedPreferences.edit()) {
+            putBoolean("isDarkMode", isDarkMode)
+            apply()
+        }
+    }
+
+    // Function to search notes
     private fun searchNotes(query: String) {
         val searchQuery = query.toLowerCase()
         Log.d("MainActivity", "Search query: $searchQuery")
@@ -115,6 +148,7 @@ class MainActivity : AppCompatActivity() {
         finishAffinity() // Close the app
     }
 
+    // Function to setup the recycler view
     private fun setupRecyclerView(userId: String) {
         val query = firestore.collection("users")
             .document(userId)
@@ -125,12 +159,25 @@ class MainActivity : AppCompatActivity() {
             .setQuery(query, NoteData::class.java)
             .build()
 
-        noteAdapter = NoteAdapter(options)
+        noteAdapter = object : NoteAdapter(options) {
+            override fun onDataChanged() {
+                super.onDataChanged()
+                Log.d("MainActivity", "onDataChanged called. Item count: $itemCount")
+                if (itemCount == 0) {
+                    binding.noNotesText.visibility = android.view.View.VISIBLE
+                } else {
+                    binding.noNotesText.visibility = android.view.View.GONE
+                }
+            }
+        }
+
         binding.notesRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = noteAdapter
         }
     }
+
+    // Function to start and stop listening to the adapter
     override fun onStart() {
         super.onStart()
         noteAdapter.startListening()
@@ -141,6 +188,8 @@ class MainActivity : AppCompatActivity() {
         noteAdapter.stopListening()
     }
 
+
+    // Function to reset the recycler view
     private fun resetRecyclerView() {
         val userId = auth.currentUser?.uid ?: return
         val query = firestore.collection("users")
@@ -153,8 +202,12 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         noteAdapter.updateOptions(options)
+        noteAdapter.notifyDataSetChanged()
     }
 
+
+
+    // Function to delete a note
     private val simpleCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
         override fun onMove(
             recyclerView: RecyclerView,
@@ -163,7 +216,6 @@ class MainActivity : AppCompatActivity() {
         ): Boolean {
             return false
         }
-
         override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, direction: Int) {
             val position = viewHolder.adapterPosition
             val docId = noteAdapter.snapshots.getSnapshot(position).id

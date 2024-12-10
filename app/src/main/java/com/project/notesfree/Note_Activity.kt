@@ -24,8 +24,6 @@ class Note_Activity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
 
-
-        //Autentikasi user
         docId = intent.getStringExtra("docId")
         if (docId != null) {
             binding.edtTitleCreateNote.setText(intent.getStringExtra("title"))
@@ -33,7 +31,6 @@ class Note_Activity : AppCompatActivity() {
             binding.noteTitle.text = "Edit Your Note"
         }
 
-        //Menyimpan data note
         binding.createSaveNote.setOnClickListener {
             saveNote()
         }
@@ -44,7 +41,8 @@ class Note_Activity : AppCompatActivity() {
         finish()
     }
 
-    //Fungsi untuk menyimpan data note
+
+    // Function to save notes
     private fun saveNote() {
         val title = binding.edtTitleCreateNote.text.toString()
         val description = binding.edtDescriptionCreateNote.text.toString()

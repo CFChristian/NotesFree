@@ -17,7 +17,7 @@ class SplashActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
-        // Cek apakah user sudah login atau belum
+        // Check if a user is logged in
         if (currentUser != null) {
             // Check if the user account still exists
             currentUser.reload().addOnCompleteListener { task ->

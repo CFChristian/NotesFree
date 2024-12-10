@@ -2,10 +2,8 @@ package com.project.notesfree
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.userProfileChangeRequest
@@ -89,7 +87,7 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    // Fungsi registerUser
+    // Function to register user
     private fun registerUser(username: String, email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
