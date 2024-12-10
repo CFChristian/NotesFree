@@ -69,7 +69,6 @@ class MainActivity : AppCompatActivity() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
-
             override fun onQueryTextChange(newText: String?): Boolean {
                 if (!TextUtils.isEmpty(newText)) {
                     searchNotes(newText!!)
